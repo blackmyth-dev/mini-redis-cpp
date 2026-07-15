@@ -1,5 +1,9 @@
 # Learning path
 
+Nếu các khái niệm IP, port, TCP stream, socket hoặc HTTP request còn mới, hãy
+đọc [PROJECT_GUIDE_VI.md](PROJECT_GUIDE_VI.md) trước. File này chỉ tập trung vào
+các milestone; hướng dẫn kia giải thích nền tảng và lần theo source code.
+
 ## Kiến trúc đích
 
 Một `GatewayRuntime` sẽ sở hữu thread pool, state store, event bus và lifecycle.
