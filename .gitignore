@@ -1,19 +1,11 @@
 /build/
-*.db
-*.db.tmp
-.cache/
-compile_commands.json
 build-*/
 cmake-build-*/
-
-# CMake generated files
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
 compile_commands.json
-
-# Executable and libraries
 *.o
 *.obj
 *.a
@@ -22,22 +14,17 @@ compile_commands.json
 *.dylib
 *.exe
 *.out
-
-# Debug files
 *.dSYM/
 *.pdb
-
-# IDE
 .vscode/
 .idea/
 *.user
-
-# Temporary files
+*.db
+*.db.tmp
+.cache/
 *.log
 *.tmp
 *.swp
 *~
-
-# OS files
 .DS_Store
 Thumbs.db

@@ -1,0 +1,49 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "core-dev",
+      "displayName": "Core only (no middleware dependencies)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/core-dev",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GATEWAY_BUILD_RUNTIME": "OFF",
+        "GATEWAY_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "full",
+      "displayName": "Full gateway with Boost, Paho and vsomeip",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/full",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GATEWAY_BUILD_RUNTIME": "ON",
+        "GATEWAY_BUILD_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "core-dev", "configurePreset": "core-dev" },
+    { "name": "full", "configurePreset": "full" }
+  ],
+  "testPresets": [
+    {
+      "name": "core-dev",
+      "configurePreset": "core-dev",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "full",
+      "configurePreset": "full",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}
+

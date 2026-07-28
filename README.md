@@ -1,72 +1,85 @@
 # C++ Edge Gateway
 
-Một project học C++ systems programming theo bốn chặng nhưng cùng một sản phẩm:
+Project học Modern C++ và middleware automotive theo kiến trúc ports/adapters.
+Runtime không tự viết lại protocol stack:
+
+- Boost.Asio cho TCP command transport.
+- Boost.Beast cho HTTP/1.1.
+- Eclipse Paho MQTT C++ cho MQTT client.
+- COVESA vsomeip cho SOME/IP, routing và Service Discovery.
 
 ```text
-Device/SOME-IP <---> Edge Gateway <---> MQTT broker
-                         |
-                         +-- HTTP management API
-                         +-- Redis-like state store
+TCP CLI ─┐
+HTTP ────┼──> StateStore ──> StateEventBus ──> MQTT state topics
+MQTT ────┤                         └──────────> vsomeip field event
+vsomeip ─┘
 ```
 
-Phiên bản hiện tại có Redis-like TCP server và HTTP management API dùng chung
-thread-safe store, cùng thread pool, TTL, snapshot và graceful shutdown.
-
-> Nếu bạn chưa học network, TCP, socket, HTTP, MQTT hoặc SOME/IP, hãy đọc
-> **[Hướng dẫn project từ căn bản](docs/PROJECT_GUIDE_VI.md)**. Tài liệu giải thích
-> từ mô hình client/server, luồng của một socket, cấu trúc HTTP request cho tới
-> cách từng khái niệm ánh xạ vào source code của project.
-
-## Project hiện có gì?
-
-| Thành phần | Trạng thái | Vai trò |
-|---|---|---|
-| Key-value store, TTL, snapshot | Đã có | Lưu state dùng chung |
-| Redis-like protocol trên TCP | Đã có | Giao diện TCP đơn giản để học socket |
-| HTTP/1.1 management API | Đã có | Quản lý cùng state bằng `curl` |
-| MQTT adapter | Chưa có | Milestone tiếp theo |
-| SOME/IP adapter | Chưa có | Milestone sau MQTT |
-
-Hai server hiện tại là hai “cửa vào” khác nhau nhưng cùng đọc/ghi một
-`KeyValueStore`. Vì vậy dữ liệu ghi qua TCP có thể đọc qua HTTP và ngược lại.
-
-## Build và chạy
+## Build core không cần middleware
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-ctest --test-dir build --output-on-failure
-./build/edge_gateway --port 6379 --http-port 8080 --db gateway.db --threads 4
+cmake --preset core-dev
+cmake --build --preset core-dev
+ctest --preset core-dev
 ```
 
-Kết nối bằng `nc localhost 6379`, mỗi command kết thúc bằng newline:
+## Dependency cho full runtime
 
-```text
-SET name Duy
-GET name
-EXPIRE name 10
-TTL name
-SAVE
-QUIT
-```
-
-Response protocol: `+OK`, `$<length>\r\n<value>`, `:<number>`, `$-1`, hoặc
-`-ERR <message>`.
-
-HTTP API:
+Ubuntu/Debian:
 
 ```bash
-curl -X PUT --data 'Duy' http://localhost:8080/kv/name
-curl http://localhost:8080/kv/name
-curl -X DELETE http://localhost:8080/kv/name
-curl http://localhost:8080/health
+sudo apt install libboost-all-dev libpaho-mqtt-dev libpaho-mqttpp-dev
 ```
+
+Cài COVESA vsomeip theo hướng dẫn chính thức, sao cho
+`find_package(vsomeip3 3.4.10)` tìm thấy package:
+
+```bash
+git clone https://github.com/COVESA/vsomeip.git
+cmake -S vsomeip -B vsomeip/build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_SIGNAL_HANDLING=1 \
+  -DCMAKE_INSTALL_PREFIX=/usr/local
+cmake --build vsomeip/build --target install
+```
+
+Sau đó:
+
+```bash
+cmake --preset full
+cmake --build --preset full
+```
+
+## Chạy
+
+Terminal 1, chạy MQTT broker ngoài:
+
+```bash
+mosquitto -v
+```
+
+Terminal 2:
+
+```bash
+export VSOMEIP_APPLICATION_NAME=edge-gateway
+export VSOMEIP_CONFIGURATION="$PWD/config/vsomeip-edge-gateway.json"
+
+./build/full/edge_gateway \
+  --tcp-port 6379 \
+  --http-port 8080 \
+  --mqtt-uri tcp://127.0.0.1:1883 \
+  --vsomeip-app edge-gateway \
+  --threads 4 \
+  --db gateway.db
+```
+
+MQTT command topic là `gateway/command/<key>`. State change được publish tới
+`gateway/state/<key>`.
 
 ## Tài liệu
 
-- [Hướng dẫn project từ căn bản](docs/PROJECT_GUIDE_VI.md): bắt đầu ở đây nếu
-  chưa biết networking.
-- [Learning path](docs/LEARNING_PATH.md): các milestone và bài tập để phát triển
-  project.
+- [Kiến trúc và UML](docs/ARCHITECTURE_VI.md)
+- [HTTP, MQTT và SOME/IP hoạt động thế nào](docs/PROTOCOLS_VI.md)
+- [COVESA vsomeip setup và mapping](docs/VSOMEIP_GUIDE_VI.md)
+- [Lộ trình học và bài tập](docs/LEARNING_PATH.md)
 
-Mục tiêu là hiểu từng tầng, không chỉ ghép thư viện.

@@ -1,59 +1,43 @@
 # Learning path
 
-Nếu các khái niệm IP, port, TCP stream, socket hoặc HTTP request còn mới, hãy
-đọc [PROJECT_GUIDE_VI.md](PROJECT_GUIDE_VI.md) trước. File này chỉ tập trung vào
-các milestone; hướng dẫn kia giải thích nền tảng và lần theo source code.
+## Milestone 1 — Domain và concurrency
 
-## Kiến trúc đích
+- Đọc `StateStore` và `StateEventBus`.
+- Giải thích vì sao publish event diễn ra sau khi nhả store mutex.
+- Viết concurrent test và chạy TSan.
 
-Một `GatewayRuntime` sẽ sở hữu thread pool, state store, event bus và lifecycle.
-Các adapter giao tiếp với runtime thay vì gọi chéo trực tiếp:
+## Milestone 2 — Boost.Asio TCP
 
-```text
-Redis TCP --+
-HTTP -------+--> GatewayRuntime --> KeyValueStore / EventBus
-MQTT -------+
-SOME/IP ----+
-```
+- Hiểu `io_context`, async accept/read/write và object lifetime bằng
+  `shared_from_this`.
+- Thêm command `TTL` và parser tests.
+- Thêm timeout mà không block worker.
 
-Protocol adapter chỉ parse/serialize; business state nằm ở core. Nhờ vậy parser
-được test không cần socket và core không phụ thuộc giao thức mạng.
+## Milestone 3 — Boost.Beast HTTP
 
-## Milestone 1 — Redis-like state server (hiện tại)
+- Lần theo typed request/response.
+- Thêm body limit, deadline và JSON error model.
+- Thêm TLS bằng `beast::ssl_stream`.
 
-- Hiểu mutex đang bảo vệ invariant nào trong `KeyValueStore`.
-- Hiểu vì sao destructor của `ThreadPool` phải join worker.
-- Dùng `nc` gửi hai command cùng packet và một command bị chia nhỏ.
-- Viết thêm `INCR` theo test-first.
-- Chạy AddressSanitizer và ThreadSanitizer.
+## Milestone 4 — Paho MQTT bridge
 
-Done khi 100 client đồng thời, shutdown không treo, snapshot load đúng và không
-có data race.
+- Chạy Mosquitto và quan sát subscribe/publish.
+- Test reconnect và duplicate QoS 1.
+- Thêm Last Will, credentials và TLS.
+- Viết fake domain port để unit-test callback mapping.
 
-## Milestone 2 — HTTP/1.1 management server (hiện tại)
+## Milestone 5 — COVESA vsomeip
 
-- Incremental parser: request line, headers, `Content-Length`.
-- `GET/PUT/DELETE /kv/{key}` và `/health` đã có; `/metrics` là bài tập tiếp theo.
-- Incremental parsing, keep-alive và giới hạn body/header đã có.
-- Timeout và static files là bước hardening tiếp theo.
-- Không giả định một `recv()` tương ứng một request.
+- Chạy service với config local.
+- Viết vsomeip client request GET/SET.
+- Subscribe eventgroup và nhận field notification.
+- Chạy hai network namespace với SD multicast.
+- Sau đó học CommonAPI/Franca hoặc AUTOSAR generated bindings.
 
-## Milestone 3 — MQTT 3.1.1 subset
+## Definition of done
 
-- Remaining Length variable-byte encoding.
-- CONNECT, PUBLISH QoS 0, SUBSCRIBE và PING.
-- Topic filter `+`/`#`, retained message, keep-alive; sau đó mới QoS 1.
-- Publish state changes vào `gateway/kv/<key>`.
+- Core tests pass normal, ASan và TSan.
+- Full build tìm đúng Boost/Paho/vsomeip, không có stub.
+- Ghi state qua một adapter và đọc/nhận event qua adapter khác.
+- Ctrl+C dừng Paho, vsomeip, Asio và snapshot theo đúng thứ tự.
 
-## Milestone 4 — SOME/IP adapter
-
-- Header serialization theo network byte order.
-- Request/response, fire-and-forget, event notification.
-- Service discovery state machine; tách UDP/TCP khỏi serializer.
-- Sau khi hiểu wire format mới tích hợp stack automotive thực tế.
-
-## Milestone 5 — hardening
-
-- `epoll` reactor, bounded queue/backpressure, config và structured logging.
-- Atomic snapshot, append-only log và corruption detection.
-- Parser fuzzing, benchmark p50/p95/p99, CI và sanitizers.
