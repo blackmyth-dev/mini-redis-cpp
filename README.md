@@ -82,6 +82,7 @@ Nếu mới học networking, đọc theo đúng thứ tự dưới đây. Tài 
 đầu từ IP/port/socket và TCP, không yêu cầu đã biết middleware.
 
 - [Nền tảng TCP, HTTP, MQTT và SOME/IP](docs/PROTOCOLS_VI.md)
+- [UML trực quan: component, class, sequence, deployment và thread](docs/UML_GUIDE_VI.md)
 - [COVESA vsomeip: bản chất, lifecycle, mapping và debug](docs/VSOMEIP_GUIDE_VI.md)
 - [Lộ trình học từ người mới đến mức phỏng vấn](docs/LEARNING_PATH.md)
 - [Kiến trúc và UML](docs/ARCHITECTURE_VI.md)

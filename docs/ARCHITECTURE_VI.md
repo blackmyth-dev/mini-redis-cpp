@@ -1,5 +1,9 @@
 # Kiến trúc C++ Edge Gateway
 
+Nếu mới học UML hoặc muốn xem data flow của từng protocol, đọc
+[bộ UML trực quan](UML_GUIDE_VI.md). Tài liệu đó có component, class, sequence,
+deployment, thread và lifecycle diagram kèm hướng dẫn cách đọc.
+
 ## 1. Nguyên tắc
 
 Domain không include Boost, Paho hoặc vsomeip. Middleware nằm ở adapter ngoài.
@@ -125,4 +129,3 @@ Tự parse wire format hữu ích như bài tập, nhưng không phải kiến t
 
 Project chỉ tự sở hữu phần tạo giá trị: domain model, use case, deployment
 serialization và mapping giữa protocol với domain.
-

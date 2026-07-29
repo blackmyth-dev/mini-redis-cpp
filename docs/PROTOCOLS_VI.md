@@ -8,6 +8,9 @@ là trả lời được bốn câu hỏi cho mỗi công nghệ:
 3. Nó nằm ở đâu trong project?
 4. Khi lỗi xảy ra, phải suy luận từ tầng nào?
 
+Sau khi đọc phần lý thuyết, xem [bộ UML trực quan](UML_GUIDE_VI.md) để theo dõi
+TCP, HTTP, MQTT và SOME/IP qua đúng class, thread và process trong project.
+
 ## 1. Bức tranh lớn: dữ liệu đi qua nhiều tầng
 
 Khi một client gửi HTTP request, không có một “gói HTTP” bay thẳng từ chương
