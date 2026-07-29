@@ -78,8 +78,10 @@ MQTT command topic là `gateway/command/<key>`. State change được publish t�
 
 ## Tài liệu
 
-- [Kiến trúc và UML](docs/ARCHITECTURE_VI.md)
-- [HTTP, MQTT và SOME/IP hoạt động thế nào](docs/PROTOCOLS_VI.md)
-- [COVESA vsomeip setup và mapping](docs/VSOMEIP_GUIDE_VI.md)
-- [Lộ trình học và bài tập](docs/LEARNING_PATH.md)
+Nếu mới học networking, đọc theo đúng thứ tự dưới đây. Tài liệu protocol bắt
+đầu từ IP/port/socket và TCP, không yêu cầu đã biết middleware.
 
+- [Nền tảng TCP, HTTP, MQTT và SOME/IP](docs/PROTOCOLS_VI.md)
+- [COVESA vsomeip: bản chất, lifecycle, mapping và debug](docs/VSOMEIP_GUIDE_VI.md)
+- [Lộ trình học từ người mới đến mức phỏng vấn](docs/LEARNING_PATH.md)
+- [Kiến trúc và UML](docs/ARCHITECTURE_VI.md)
